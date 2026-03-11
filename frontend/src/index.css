@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #111827;
+}
+
+.dark {
+  --bg-color: #0f172a;
+  --text-color: #f8fafc;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.react-pdf__Page__canvas {
+  margin: 0 auto;
+}
+
+/* React Big Calendar Dark Mode Overrides */
+.dark .rbc-calendar {
+  color: #f8fafc;
+}
+
+.dark .rbc-toolbar button {
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+.dark .rbc-toolbar button:hover,
+.dark .rbc-toolbar button:active,
+.dark .rbc-toolbar button.rbc-active {
+  background-color: #1e293b;
+  color: #38bdf8;
+  border-color: #38bdf8;
+}
+
+.dark .rbc-toolbar button:focus {
+  background-color: #1e293b;
+  color: #38bdf8;
+}
+
+.dark .rbc-month-view, 
+.dark .rbc-time-view, 
+.dark .rbc-agenda-view {
+  border-color: #334155;
+}
+
+.dark .rbc-header {
+  border-bottom-color: #334155;
+}
+
+.dark .rbc-header + .rbc-header {
+  border-left-color: #334155;
+}
+
+.dark .rbc-day-bg + .rbc-day-bg {
+  border-left-color: #334155;
+}
+
+.dark .rbc-month-row + .rbc-month-row {
+  border-top-color: #334155;
+}
+
+.dark .rbc-today {
+  background-color: #1e293b;
+}
+
+.dark .rbc-off-range-bg {
+  background-color: #0f172a;
+}

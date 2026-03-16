@@ -8,8 +8,6 @@
 
 > A **unified platform where Entrepreneurs pitch and Investors discover** — featuring integrated video calls, calendar scheduling, e-signatures, and secure payments in one ecosystem.
 
-🌐 **[Explore the docs »](#)**
-🚀 **[View Demo](#)** · 🐛 **[Report Bug](#)** · 🌟 **[Request Feature](#)**
 
 ---
 

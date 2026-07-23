@@ -34,35 +34,35 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ url, originalName }) => {
   const zoomOut = () => setScale(prevScale => Math.max(prevScale - 0.2, 0.5));
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 overflow-hidden rounded-b-xl">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 overflow-hidden rounded-b-xl">
       {/* Toolbar */}
-      <div className="flex items-center justify-between bg-gray-100 p-2 border-b">
+      <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-2 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
           <button 
             onClick={previousPage} 
             disabled={pageNumber <= 1}
-            className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 text-gray-700 dark:text-gray-300"
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="text-sm">
+          <span className="text-sm text-gray-700 dark:text-gray-300">
             Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
           </span>
           <button 
             onClick={nextPage} 
             disabled={pageNumber >= (numPages || 1)}
-            className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 text-gray-700 dark:text-gray-300"
           >
             <ChevronRight size={20} />
           </button>
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={zoomOut} className="p-1 rounded hover:bg-gray-200" title="Zoom Out">
+          <button onClick={zoomOut} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300" title="Zoom Out">
             <ZoomOut size={18} />
           </button>
-          <span className="text-sm w-12 text-center">{Math.round(scale * 100)}%</span>
-          <button onClick={zoomIn} className="p-1 rounded hover:bg-gray-200" title="Zoom In">
+          <span className="text-sm w-12 text-center text-gray-700 dark:text-gray-300">{Math.round(scale * 100)}%</span>
+          <button onClick={zoomIn} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300" title="Zoom In">
             <ZoomIn size={18} />
           </button>
         </div>

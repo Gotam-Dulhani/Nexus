@@ -235,10 +235,10 @@ export const DocumentsPage: React.FC = () => {
       {/* PDF Preview Modal */}
       {previewDoc && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col">
-            <div className="flex justify-between items-center px-6 py-4 border-b">
-              <h3 className="font-semibold text-gray-900 truncate">{previewDoc.originalName}</h3>
-              <button onClick={() => setPreviewDoc(null)} className="text-gray-400 hover:text-gray-600">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold text-gray-900 dark:text-white truncate">{previewDoc.originalName}</h3>
+              <button onClick={() => setPreviewDoc(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <X size={22} />
               </button>
             </div>
@@ -254,8 +254,8 @@ export const DocumentsPage: React.FC = () => {
                   />
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                  <FileText size={48} className="text-gray-300 mb-3" />
+                <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                  <FileText size={48} className="text-gray-300 dark:text-gray-600 mb-3" />
                   <p>Preview not available for this file type.</p>
                   <a
                     href={`${BACKEND_URL}${previewDoc.url}`}

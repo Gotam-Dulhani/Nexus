@@ -74,3 +74,36 @@ body {
 .dark .rbc-off-range-bg {
   background-color: #0f172a;
 }
+
+/* Auth page animated gradient background */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes floatDelay {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(-3deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.auth-gradient-bg {
+  background: linear-gradient(-45deg, #1e3a8a, #2563eb, #7c3aed, #4f46e5, #2563eb);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+.auth-float-1 { animation: float 6s ease-in-out infinite; }
+.auth-float-2 { animation: floatDelay 8s ease-in-out infinite 1s; }
+.auth-float-3 { animation: float 7s ease-in-out infinite 2s; }
+.auth-pulse { animation: pulse-glow 4s ease-in-out infinite; }

@@ -1,9 +1,10 @@
 import React from 'react';
+import { BACKEND_URL } from '../../context/AuthContext';
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 interface AvatarProps {
-  src: string;
+  src?: string;
   alt: string;
   size?: AvatarSize;
   className?: string;
@@ -40,7 +41,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     xl: 'h-4 w-4',
   };
   
-  const BASE = '';
+  const BASE = BACKEND_URL;
   
   // Resolve standard or relative URL
   const getImageUrl = (url: string) => {
@@ -49,7 +50,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     return `${BASE}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
-  const imageUrl = getImageUrl(src);
+  const imageUrl = src ? getImageUrl(src) : '';
 
   return (
     <div className={`relative inline-block ${className}`}>

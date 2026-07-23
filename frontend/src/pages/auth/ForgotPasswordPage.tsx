@@ -9,6 +9,7 @@ export const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const { forgotPassword } = useAuth();
   
@@ -20,7 +21,7 @@ export const ForgotPasswordPage: React.FC = () => {
       await forgotPassword(email);
       setIsSubmitted(true);
     } catch (error) {
-      // Error is handled by the AuthContext
+      setError((error as Error).message || 'Failed to send reset email');
     } finally {
       setIsLoading(false);
     }
@@ -84,6 +85,11 @@ export const ForgotPasswordPage: React.FC = () => {
         </div>
         
         <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-500 text-red-700 px-4 py-3 rounded-md">
+              {error}
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Input
               label="Email address"

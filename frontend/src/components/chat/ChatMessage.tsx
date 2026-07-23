@@ -1,3 +1,4 @@
+import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Phone, Video, PhoneMissed } from 'lucide-react';
 import { Avatar } from '../ui/Avatar';

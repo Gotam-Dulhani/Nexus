@@ -9,6 +9,7 @@ export const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -32,7 +33,7 @@ export const ResetPasswordPage: React.FC = () => {
       await resetPassword(token, password);
       navigate('/login');
     } catch (error) {
-      // Error is handled by the AuthContext
+      setError((error as Error).message || 'Failed to reset password');
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +76,11 @@ export const ResetPasswordPage: React.FC = () => {
         </div>
         
         <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-500 text-red-700 px-4 py-3 rounded-md">
+              {error}
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Input
               label="New password"

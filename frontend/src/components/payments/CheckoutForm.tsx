@@ -3,6 +3,8 @@ import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js'
 import { Button } from '../ui/Button';
 import { apiPost } from '../../utils/api';
 
+import { useAuth } from '../../context/AuthContext';
+
 interface CheckoutFormProps {
   transactionId: string;
   onSuccess: () => void;
@@ -12,6 +14,7 @@ interface CheckoutFormProps {
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({ transactionId, onSuccess, onError }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { token } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +37,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ transactionId, onSuc
       setIsProcessing(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       try {
-        const token = localStorage.getItem('nexus_token');
         await apiPost('/payments/deposit/confirm', {
           transactionId,
           paymentIntentId: paymentIntent.id

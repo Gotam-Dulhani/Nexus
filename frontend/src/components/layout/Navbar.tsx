@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
     {
       icon: <MessageCircle size={18} />,
       text: 'Messages',
-      path: user ? '/messages' : '/login',
+      path: user ? '/chat' : '/login',
     },
     {
       icon: <Bell size={18} />,

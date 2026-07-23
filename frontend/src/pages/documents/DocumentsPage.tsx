@@ -201,7 +201,7 @@ export const DocumentsPage: React.FC = () => {
                     </button>
 
                     <a
-                      href={`${BASE}${doc.url}`}
+                      href={`${BACKEND_URL}${doc.url}`}
                       download={doc.originalName}
                       className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                       title="Download"
@@ -244,11 +244,11 @@ export const DocumentsPage: React.FC = () => {
             </div>
             <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
               {previewDoc.mimeType === 'application/pdf' ? (
-                <PDFViewer url={`${BASE}${previewDoc.url}`} originalName={previewDoc.originalName} />
+                <PDFViewer url={`${BACKEND_URL}${previewDoc.url}`} originalName={previewDoc.originalName} />
               ) : previewDoc.mimeType.startsWith('image/') ? (
                 <div className="flex items-center justify-center h-full p-4 overflow-auto">
                   <img
-                    src={`${BASE}${previewDoc.url}`}
+                    src={`${BACKEND_URL}${previewDoc.url}`}
                     alt={previewDoc.originalName}
                     className="max-h-full max-w-full object-contain rounded"
                   />
@@ -258,7 +258,7 @@ export const DocumentsPage: React.FC = () => {
                   <FileText size={48} className="text-gray-300 mb-3" />
                   <p>Preview not available for this file type.</p>
                   <a
-                    href={`${BASE}${previewDoc.url}`}
+                    href={`${BACKEND_URL}${previewDoc.url}`}
                     download={previewDoc.originalName}
                     className="mt-3 text-primary-600 hover:underline text-sm"
                   >

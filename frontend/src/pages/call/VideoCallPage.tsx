@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { Mic, MicOff, Video, VideoOff, PhoneOff, Users } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, BACKEND_URL } from '../../context/AuthContext';
 
-const SOCKET_URL = window.location.origin;
+const SOCKET_URL = BACKEND_URL;
 
 interface PeerInfo {
   socketId: string;

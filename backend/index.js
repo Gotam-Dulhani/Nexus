@@ -26,9 +26,18 @@ if (process.env.FRONTEND_URL) {
   console.log(`[CORS] Added ${process.env.FRONTEND_URL} to allowed origins`);
 }
 
+// Allow any Vercel preview deployment
+const corsHandler = (origin, callback) => {
+  if (!origin || corsOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    callback(null, true);
+  } else {
+    callback(new Error('Not allowed by CORS'));
+  }
+};
+
 // ✅ Security & parsing middleware
 app.use(helmet());
-app.use(cors({ origin: corsOrigins, credentials: true }));
+app.use(cors({ origin: corsHandler, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
  
@@ -67,7 +76,7 @@ app.get('/', (req, res) => res.send('Nexus API Running'));
 
 // ✅ Socket.IO for WebRTC signaling
 const io = new Server(server, {
-  cors: { origin: corsOrigins, methods: ['GET', 'POST'] }
+  cors: { origin: corsHandler, methods: ['GET', 'POST'] }
 });
 require('./socketServer')(io);
 

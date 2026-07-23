@@ -81,6 +81,8 @@ exports.confirmDeposit = async (req, res) => {
     if (process.env.STRIPE_SECRET_KEY) {
        const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
        if (intent.status !== 'succeeded') {
+         tx.status = 'failed';
+         await tx.save();
          return res.status(400).json({ message: `Payment not successful: ${intent.status}` });
        }
     }
@@ -124,6 +126,9 @@ exports.withdraw = async (req, res) => {
 
     res.status(201).json({ ...tx.toObject(), message: 'Withdrawal initiated.' });
   } catch (error) {
+    if (error._id) {
+      await Transaction.findByIdAndUpdate(error._id, { status: 'failed' });
+    }
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

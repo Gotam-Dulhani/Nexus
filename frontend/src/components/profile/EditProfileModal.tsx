@@ -26,6 +26,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
     maximumInvestment: initialData.maximumInvestment || ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -36,15 +37,21 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    if (!formData.bio.trim()) {
+      setError('Bio is required');
+      return;
+    }
+    if (role === 'entrepreneur' && !formData.startupName.trim()) {
+      setError('Startup name is required for entrepreneurs');
+      return;
+    }
     setLoading(true);
     try {
-      // In a real app we'd upload the avatar file with FormData
-      // For now we'll send a JSON PUT request
       await onSave(formData);
       onClose();
     } catch (err) {
-      console.error(err);
-      alert('Failed to save profile');
+      setError((err as Error).message || 'Failed to save profile');
     } finally {
       setLoading(false);
     }
@@ -61,6 +68,11 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {error && (
+            <div className="bg-red-50 border border-red-500 text-red-700 px-4 py-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio / About Me</label>

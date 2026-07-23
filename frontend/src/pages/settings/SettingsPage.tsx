@@ -31,6 +31,15 @@ export const SettingsPage: React.FC = () => {
     location: user?.location || 'San Francisco, CA'
   });
 
+  // 2FA state
+  const [otpStep, setOtpStep] = useState<'idle' | 'sending' | 'verifying' | 'done'>('idle');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+
+  // Password change state
+  const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
+  const [passwordError, setPasswordError] = useState('');
+
   // Handle theme change on mount and when theme changes
   useEffect(() => {
     if (theme === 'Dark') {
@@ -53,6 +62,10 @@ export const SettingsPage: React.FC = () => {
   if (!user) return null;
 
   const handleProfileUpdate = async () => {
+    if (!profileForm.name.trim()) {
+      setMessage({ type: 'error', text: 'Name is required' });
+      return;
+    }
     setLoading(true);
     setMessage({ type: '', text: '' });
     try {
@@ -245,20 +258,96 @@ export const SettingsPage: React.FC = () => {
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Add an extra layer of security to your account.
                       </p>
-                      <Badge variant="error" className="mt-1">Not Enabled</Badge>
+                      <Badge variant={otpStep === 'done' ? 'success' : 'error'} className="mt-1">
+                        {otpStep === 'done' ? 'Enabled' : 'Not Enabled'}
+                      </Badge>
                     </div>
-                    <Button variant="outline" onClick={() => setMessage({ type: 'success', text: 'Two-Factor Authentication setup instructions sent to your email.' })}>Enable</Button>
+                    {otpStep === 'idle' && (
+                      <Button variant="outline" onClick={async () => {
+                        setOtpStep('sending');
+                        setOtpError('');
+                        try {
+                          await apiPost('/auth/send-otp', { email: user.email }, token);
+                          setOtpStep('verifying');
+                        } catch (e) {
+                          setOtpError((e as Error).message || 'Failed to send OTP');
+                          setOtpStep('idle');
+                        }
+                      }}>Enable</Button>
+                    )}
                   </div>
+                  {otpStep === 'verifying' && (
+                    <div className="mt-4 p-4 border rounded-lg dark:border-gray-700">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        Enter the 6-digit code sent to {user.email}
+                      </p>
+                      {otpError && <p className="text-sm text-red-600 mb-2">{otpError}</p>}
+                      <div className="flex gap-2">
+                        <Input
+                          value={otpCode}
+                          onChange={e => setOtpCode(e.target.value)}
+                          placeholder="000000"
+                          fullWidth
+                        />
+                        <Button onClick={async () => {
+                          try {
+                            await apiPost('/auth/verify-otp', { email: user.email, code: otpCode }, token);
+                            setOtpStep('done');
+                            setOtpError('');
+                          } catch (e) {
+                            setOtpError((e as Error).message || 'Invalid code');
+                          }
+                        }}>Verify</Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
                   <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Change Password</h3>
+                  {passwordError && (
+                    <div className="mb-3 bg-red-50 border border-red-500 text-red-700 px-4 py-3 rounded-md text-sm">
+                      {passwordError}
+                    </div>
+                  )}
                   <div className="space-y-4 max-w-md">
-                    <Input label="Current Password" type="password" placeholder="••••••••" />
-                    <Input label="New Password" type="password" placeholder="••••••••" />
-                    <Input label="Confirm New Password" type="password" placeholder="••••••••" />
+                    <Input label="Current Password" type="password" placeholder="••••••••"
+                      value={passwordForm.current}
+                      onChange={e => setPasswordForm(p => ({ ...p, current: e.target.value }))}
+                    />
+                    <Input label="New Password" type="password" placeholder="••••••••"
+                      value={passwordForm.newPass}
+                      onChange={e => setPasswordForm(p => ({ ...p, newPass: e.target.value }))}
+                      error={passwordForm.newPass && passwordForm.newPass.length < 6 ? 'Min 6 characters' : undefined}
+                    />
+                    <Input label="Confirm New Password" type="password" placeholder="••••••••"
+                      value={passwordForm.confirm}
+                      onChange={e => setPasswordForm(p => ({ ...p, confirm: e.target.value }))}
+                      error={passwordForm.confirm && passwordForm.confirm !== passwordForm.newPass ? 'Passwords do not match' : undefined}
+                    />
                     <div className="flex justify-start">
-                      <Button onClick={() => setMessage({ type: 'success', text: 'Password updated successfully.' })}>Update Password</Button>
+                      <Button onClick={async () => {
+                        setPasswordError('');
+                        if (!passwordForm.current || !passwordForm.newPass) {
+                          setPasswordError('All fields are required');
+                          return;
+                        }
+                        if (passwordForm.newPass.length < 6) {
+                          setPasswordError('New password must be at least 6 characters');
+                          return;
+                        }
+                        if (passwordForm.newPass !== passwordForm.confirm) {
+                          setPasswordError('Passwords do not match');
+                          return;
+                        }
+                        try {
+                          await apiPost('/auth/forgot-password', { email: user.email }, token);
+                          setMessage({ type: 'success', text: 'Password reset link sent to your email. Use it to set a new password.' });
+                          setPasswordForm({ current: '', newPass: '', confirm: '' });
+                        } catch (e) {
+                          setPasswordError((e as Error).message || 'Failed to update password');
+                        }
+                      }}>Update Password</Button>
                     </div>
                   </div>
                 </div>

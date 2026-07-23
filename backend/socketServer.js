@@ -140,6 +140,14 @@ module.exports = (io) => {
       io.to(targetSocketId).emit('ice-candidate', { from: socket.id, candidate });
     });
 
+    socket.on('toggle-media', ({ roomId, userId, mediaType, enabled }) => {
+      socket.to(roomId).emit('media-toggled', { socketId: socket.id, userId, mediaType, enabled });
+    });
+
+    socket.on('end-call', ({ roomId }) => {
+      socket.to(roomId).emit('call-ended', { socketId: socket.id, userId: socket.userId });
+    });
+
     socket.on('disconnect', () => {
       if (socket.userId && userSockets.has(socket.userId)) {
         userSockets.get(socket.userId).delete(socket.id);

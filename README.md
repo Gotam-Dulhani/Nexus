@@ -1,4 +1,4 @@
-# 🚀 Nexus – Investor-Entrepreneur Collaboration Platform
+# Nexus – Investor-Entrepreneur Collaboration Platform
 
 [![Contributors](https://img.shields.io/github/contributors/Gotam-Dulhani/Nexus)](https://github.com/Gotam-Dulhani/Nexus/graphs/contributors)
 [![Forks](https://img.shields.io/github/forks/Gotam-Dulhani/Nexus)](https://github.com/Gotam-Dulhani/Nexus/network/members)
@@ -6,66 +6,106 @@
 [![Issues](https://img.shields.io/github/issues/Gotam-Dulhani/Nexus)](https://github.com/Gotam-Dulhani/Nexus/issues)
 [![License](https://img.shields.io/github/license/Gotam-Dulhani/Nexus)](https://github.com/Gotam-Dulhani/Nexus/blob/main/LICENSE)
 
-> A **unified platform where Entrepreneurs pitch and Investors discover** — featuring integrated video calls, calendar scheduling, e-signatures, and secure payments in one ecosystem.
+> A **unified platform where Entrepreneurs pitch and Investors discover** — featuring real-time chat, video calls, calendar scheduling, document management with e-signatures, deal tracking, and secure payments in one ecosystem.
 
-
----
-
-## 📌 Table of Contents
-
-* [About The Project](#-about-the-project)
-* [Key Features](#-key-features)
-* [Built With](#-built-with)
-* [Getting Started](#-getting-started)
-* [API Documentation](#-api-documentation)
-* [How It Works](#-how-it-works)
-* [Contributing](#-contributing)
-* [License](#-license)
-* [Contact](#-contact)
+**Live:** [https://nexus-neon-chi.vercel.app](https://nexus-neon-chi.vercel.app)
 
 ---
 
-## 💡 About The Project
+## Table of Contents
 
-**Nexus** solves the fragmented tooling problem in startup funding — where chat, scheduling, and document signing are spread across multiple platforms, slowing down deal closure.
-
-Nexus brings everything into one **"Chamber" approach**: entrepreneurs pitch their ideas, investors discover and evaluate opportunities, and both parties collaborate through video calls, a shared calendar, legally-simulated e-signatures, and a secure payment system — all in a single dashboard.
-
----
-
-## ✨ Key Features
-
-* **2FA Authentication** – OTP-based email verification for secure login.
-* **Document Chamber** – Upload pitch decks & legal contracts with cryptographic e-signature support.
-* **Meeting Calendar** – Schedule meetings with built-in conflict detection logic.
-* **Video Calls** – Real-time video via Socket.IO signaling for zero-latency connection.
-* **Payment Simulation** – Stripe Sandbox integration with full transaction flow tracing.
-* **Role-Based Access** – Separate Investor and Entrepreneur user roles with tailored dashboards.
-* **Profile Management** – Bio, avatar upload, and public profile viewing.
+- [About The Project](#about-the-project)
+- [Key Features](#key-features)
+- [Built With](#built-with)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
+- [How It Works](#how-it-works)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
 ---
 
-## 🛠 Built With
+## About The Project
+
+**Nexus** solves the fragmented tooling problem in startup funding — where chat, scheduling, document signing, and deal tracking are spread across multiple platforms, slowing down deal closure.
+
+Nexus brings everything into one **"Chamber" approach**: entrepreneurs pitch their ideas, investors discover and evaluate opportunities, and both parties collaborate through real-time messaging, video calls, a shared calendar, legally-simulated e-signatures, deal pipelines, and a secure payment system — all in a single dashboard with dark mode support.
+
+---
+
+## Key Features
+
+### Authentication & Security
+- **JWT Authentication** – Secure token-based login with role selection
+- **2FA / OTP** – Email-based one-time password verification
+- **Password Reset** – Secure token-based password recovery flow
+- **Role-Based Access** – Separate Investor and Entrepreneur roles with tailored dashboards
+
+### Communication
+- **Real-Time Chat** – Instant messaging with Socket.IO, emoji picker, conversation list
+- **Video Calls** – WebRTC signaling via Socket.IO for voice and video calls
+- **Notifications** – In-app notification center
+
+### Profiles & Discovery
+- **Profile Management** – Bio, avatar upload, startup/investment details, and public profile viewing
+- **Investor Discovery** – Entrepreneurs can browse and search investor profiles
+- **Startup Discovery** – Investors can browse and search entrepreneur/startup profiles
+
+### Meetings & Calendar
+- **Meeting Scheduler** – Calendar view with conflict detection
+- **Meeting Requests** – Accept/reject meeting invitations
+- **Video Call Integration** – Launch calls directly from meetings or chat
+
+### Document Chamber
+- **Document Upload** – Upload pitch decks, contracts, and other files
+- **PDF Preview** – In-browser PDF viewing with zoom and pagination
+- **Image Preview** – In-browser image preview
+- **E-Signature** – Hand-drawn canvas signature on documents
+- **Document Download** – Direct file download from the backend
+
+### Deal Pipeline
+- **Deal Tracking** – Create and manage deals with status stages (Due Diligence, Term Sheet, Negotiation, Closed, Passed)
+- **Deal Search & Filter** – Search deals by name and filter by status
+
+### Payments & Transactions
+- **Stripe Sandbox** – Full deposit/withdraw/transfer flow with Stripe Elements
+- **Wallet Balance** – Real-time balance display
+- **Transaction History** – Complete transaction log with status indicators
+
+### UI/UX
+- **Dark Mode** – Toggle between light and dark themes from the navbar
+- **Split-Screen Auth Pages** – Premium login/register/forgot-password pages with animated gradient backgrounds
+- **Responsive Design** – Fully responsive across mobile, tablet, and desktop
+- **Tailwind CSS** – Modern utility-first styling with custom design tokens
+
+---
+
+## Built With
 
 | Layer | Technology |
 |---|---|
-| Frontend | React (Vite), Tailwind CSS, Lucide Icons |
-| Backend | Node.js, Express.js |
-| Database | MongoDB |
-| Real-Time | Socket.IO |
-| Payments | Stripe Sandbox |
-| API Docs | Swagger |
-| Deployment | Vercel (Frontend) · Render (Backend) |
+| Frontend | React 19 + TypeScript, Vite, Tailwind CSS, Lucide Icons |
+| Backend | Node.js, Express 4.x, Mongoose 8.x |
+| Database | MongoDB Atlas |
+| Real-Time | Socket.IO 4.x |
+| File Upload | Multer 1.x |
+| Payments | Stripe (Sandbox) |
+| API Docs | Swagger (swagger-jsdoc + swagger-ui-express) |
+| Security | Helmet, CORS, bcryptjs, JWT |
+| Deployment | Vercel (Frontend) · Railway (Backend) |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-* Node.js & npm
-* MongoDB (local or Atlas)
-* Stripe account (for payment sandbox)
+- Node.js >= 18
+- npm or yarn
+- MongoDB Atlas account (or local MongoDB)
+- Stripe account (for payment sandbox)
 
 ### Installation
 
@@ -92,8 +132,7 @@ PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 STRIPE_SECRET_KEY=your_stripe_secret_key
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_email_password
+FRONTEND_URL=http://localhost:5173
 ```
 
 **4. Start the backend server**
@@ -103,6 +142,7 @@ npm run dev
 ```
 
 > Backend runs at: `http://localhost:5000`
+> Swagger docs at: `http://localhost:5000/api-docs`
 
 **5. Install frontend dependencies**
 
@@ -111,7 +151,15 @@ cd ../frontend
 npm install
 ```
 
-**6. Start the frontend**
+**6. Configure frontend environment (optional)**
+
+For local development the frontend auto-detects `http://localhost:5000/api`. To point to the deployed backend:
+
+```env
+VITE_API_URL=https://nexus-production-b488.up.railway.app/api
+```
+
+**7. Start the frontend**
 
 ```bash
 npm run dev
@@ -121,29 +169,118 @@ npm run dev
 
 ---
 
-## 📡 API Documentation
+## Project Structure
 
-Full API documented via **Swagger**. Below is a summary of all endpoints.
+```
+Nexus/
+├── backend/
+│   ├── config/
+│   │   ├── db.js              # MongoDB connection
+│   │   └── swagger.js         # Swagger configuration
+│   ├── controllers/
+│   │   ├── authController.js  # Register, login, forgot/reset password
+│   │   ├── profileController.js # Profile CRUD, avatar upload
+│   │   ├── meetingController.js # Meeting scheduling & conflict detection
+│   │   ├── documentController.js # Document upload, sign, delete
+│   │   ├── paymentController.js  # Deposit, withdraw, transfer (Stripe)
+│   │   ├── messageController.js  # Chat messaging
+│   │   ├── dealController.js     # Deal pipeline management
+│   │   └── otpController.js      # 2FA OTP send/verify
+│   ├── middleware/
+│   │   └── auth.js           # JWT auth & role-based authorization
+│   ├── models/
+│   │   ├── User.js           # User schema (name, email, password, role)
+│   │   ├── Profile.js        # Profile schema (bio, avatar, startup/investor fields)
+│   │   ├── Meeting.js        # Meeting schema
+│   │   ├── Document.js       # Document schema
+│   │   ├── Transaction.js    # Payment transaction schema
+│   │   ├── Message.js        # Chat message schema
+│   │   └── Deal.js           # Deal pipeline schema
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── profile.js
+│   │   ├── meetings.js
+│   │   ├── documents.js
+│   │   ├── payments.js
+│   │   ├── messages.js
+│   │   └── deals.js
+│   ├── uploads/              # Uploaded avatars and documents
+│   ├── index.js              # Express app entry point
+│   ├── socketServer.js       # Socket.IO event handlers
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ui/           # Avatar, Badge, Button, Card, Input
+│   │   │   ├── layout/       # Navbar, Sidebar, DashboardLayout
+│   │   │   ├── chat/         # ChatMessage, ChatUserList
+│   │   │   ├── documents/    # PDFViewer
+│   │   │   ├── payments/     # CheckoutForm (Stripe)
+│   │   │   ├── profile/      # EditProfileModal
+│   │   │   ├── investor/     # InvestorCard
+│   │   │   ├── entrepreneur/ # EntrepreneurCard
+│   │   │   └── deals/        # AddDealModal
+│   │   ├── pages/
+│   │   │   ├── auth/         # Login, Register, ForgotPassword, ResetPassword
+│   │   │   ├── dashboard/    # EntrepreneurDashboard, InvestorDashboard
+│   │   │   ├── profile/      # EntrepreneurProfile, InvestorProfile
+│   │   │   ├── chat/         # ChatPage
+│   │   │   ├── meetings/     # MeetingsPage
+│   │   │   ├── documents/    # DocumentsPage
+│   │   │   ├── payments/     # PaymentsPage
+│   │   │   ├── deals/        # DealsPage
+│   │   │   ├── investors/    # InvestorsPage
+│   │   │   ├── entrepreneurs/# EntrepreneursPage
+│   │   │   ├── notifications/# NotificationsPage
+│   │   │   ├── settings/     # SettingsPage (Profile, Security, Billing)
+│   │   │   ├── help/         # HelpPage
+│   │   │   └── call/         # VideoCallPage
+│   │   ├── context/
+│   │   │   ├── AuthContext.tsx  # Auth state, login, register, token
+│   │   │   └── SocketContext.tsx # Socket.IO provider
+│   │   ├── utils/
+│   │   │   └── api.ts        # Safe API utility (apiGet, apiPost, apiPut, etc.)
+│   │   ├── types/
+│   │   │   └── index.ts      # TypeScript type definitions
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   └── index.css
+│   ├── tailwind.config.js
+│   ├── vite.config.ts
+│   ├── vercel.json
+│   └── package.json
+├── railway.json              # Railway deployment config
+└── README.md
+```
 
-### 🔐 Authentication & Security
+---
+
+## API Documentation
+
+Full API documented via **Swagger** at `/api-docs`. Below is a summary of all endpoints.
+
+### Authentication & Security
 
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/auth/register` | Register a new Investor or Entrepreneur |
 | POST | `/api/auth/login` | Authenticate and receive a JWT token |
+| POST | `/api/auth/forgot-password` | Send a password reset email |
+| POST | `/api/auth/reset-password` | Reset password using token |
 | POST | `/api/auth/send-otp` | Trigger a 2FA OTP to user's email |
-| POST | `/api/auth/verify-otp` | Validate OTP for secure login |
+| POST | `/api/auth/verify-otp` | Validate OTP for 2FA setup |
 
-### 👤 Profile Management
+### Profile Management
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/profile/me` | Retrieve authenticated user's profile |
 | PUT | `/api/profile/me` | Update personal info, bio, and location |
 | POST | `/api/profile/me/avatar` | Upload or update profile picture |
+| GET | `/api/profile` | List all profiles (for discovery) |
 | GET | `/api/profile/:userId` | View another member's public profile |
 
-### 📅 Meetings & Calendar
+### Meetings & Calendar
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -151,50 +288,76 @@ Full API documented via **Swagger**. Below is a summary of all endpoints.
 | POST | `/api/meetings` | Schedule a new meeting (with conflict detection) |
 | PUT | `/api/meetings/:id` | Update meeting status or time |
 
-### 📄 Document Chamber
+### Document Chamber
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/documents` | List all documents and signature status |
 | POST | `/api/documents/upload` | Securely upload pitch decks or contracts |
-| POST | `/api/documents/:id/sign` | Apply a cryptographic or hand-drawn e-signature |
+| POST | `/api/documents/:id/sign` | Apply a hand-drawn e-signature |
+| DELETE | `/api/documents/:id` | Delete a document |
 
-### 💳 Payments & Transactions
+### Payments & Transactions
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/payments/create-deposit` | Initiate a Stripe Intent for wallet funding |
-| POST | `/api/payments/confirm-deposit` | Finalize transaction and update internal ledger |
+| GET | `/api/payments/balance` | Get current wallet balance |
+| POST | `/api/payments/deposit` | Initiate a Stripe deposit |
+| POST | `/api/payments/confirm` | Confirm a Stripe payment |
+| POST | `/api/payments/withdraw` | Withdraw funds from wallet |
+| POST | `/api/payments/transfer` | Transfer funds to another user |
+| GET | `/api/payments/history` | Get transaction history |
+
+### Messaging
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/messages/conversations` | List all conversations |
+| GET | `/api/messages/:userId` | Get message history with a user |
+| POST | `/api/messages` | Send a message to a user |
+
+### Deals
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/deals` | List all deals for the authenticated investor |
+| POST | `/api/deals` | Create a new deal |
+| PUT | `/api/deals/:id` | Update deal status |
+| DELETE | `/api/deals/:id` | Delete a deal |
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
 ```
 User Registration (Investor / Entrepreneur)
-        │
-        ▼
-Email OTP Verification (2FA)
-        │
-        ▼
+        |
+        v
+Email OTP Verification (2FA) / Password Reset
+        |
+        v
 Profile Setup & Dashboard
-        │
-     ┌──┴──────────────────┐
-     ▼                     ▼
+        |
+     +--+------------------+
+     v                     v
 Document Chamber      Meeting Calendar
 (Upload + E-Sign)    (Schedule + Video Call)
-     │                     │
-     └──────────┬──────────┘
-                ▼
+     |                     |
+     v                     v
+Real-Time Chat        Deal Pipeline
+(Emoji + File)       (Track + Status)
+     |                     |
+     +----------+----------+
+                v
         Payment (Stripe Sandbox)
-                │
-                ▼
-         Deal Closed ✅
+                |
+                v
+         Deal Closed
 ```
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome!
 
@@ -219,24 +382,28 @@ git push origin feature/AmazingFeature
 
 ---
 
-## 📝 License
+## License
 
 Distributed under the **MIT License**. See `LICENSE` for details.
 
 ---
 
-## 📫 Contact
+## Contact
 
 **Gotam Dulhani**
 GitHub: [https://github.com/Gotam-Dulhani](https://github.com/Gotam-Dulhani)
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-* [Node.js Documentation](https://nodejs.org/)
-* [Socket.IO Documentation](https://socket.io/)
-* [Stripe Documentation](https://stripe.com/docs)
-* [MongoDB Documentation](https://www.mongodb.com/docs/)
-* [React Documentation](https://react.dev/)
-* Open Source Community ❤️
+- [Node.js Documentation](https://nodejs.org/)
+- [Socket.IO Documentation](https://socket.io/)
+- [Stripe Documentation](https://stripe.com/docs)
+- [MongoDB Documentation](https://www.mongodb.com/docs/)
+- [React Documentation](https://react.dev/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/)
+- [Vite Documentation](https://vitejs.dev/)
+- [Railway Deployment](https://railway.app/)
+- [Vercel Deployment](https://vercel.com/)
+- Open Source Community

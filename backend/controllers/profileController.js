@@ -15,9 +15,21 @@ exports.getMyProfile = async (req, res) => {
 // PUT /api/profile/me
 exports.updateMyProfile = async (req, res) => {
   try {
+    const allowedFields = [
+      'bio', 'location', 'website',
+      'startupName', 'startupHistory', 'fundingNeeded',
+      'investmentHistory', 'investmentPreferences', 'portfolioSize'
+    ];
+    const updates = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+
     const updated = await Profile.findOneAndUpdate(
       { user: req.user.id },
-      { $set: req.body },
+      { $set: updates },
       { new: true, runValidators: true }
     ).populate('user', 'name email role');
     res.json(updated);

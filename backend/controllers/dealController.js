@@ -36,9 +36,17 @@ exports.createDeal = async (req, res) => {
 // PUT /api/deals/:id
 exports.updateDeal = async (req, res) => {
   try {
+    const allowedFields = ['startupName', 'industry', 'amount', 'equity', 'status', 'stage'];
+    const updates = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+
     const deal = await Deal.findOneAndUpdate(
       { _id: req.params.id, investor: req.user.id },
-      { $set: req.body },
+      { $set: updates },
       { new: true }
     );
     

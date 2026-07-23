@@ -71,6 +71,18 @@ const verifyOtpRules = [
   validate
 ];
 
+// ── Password Reset Validators ────────────────────────────────────
+const forgotPasswordRules = [
+  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  validate
+];
+
+const resetPasswordRules = [
+  body('token').notEmpty().withMessage('Reset token is required'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  validate
+];
+
 module.exports = {
   registerRules,
   loginRules,
@@ -79,5 +91,7 @@ module.exports = {
   withdrawRules,
   transferRules,
   sendOtpRules,
-  verifyOtpRules
+  verifyOtpRules,
+  forgotPasswordRules,
+  resetPasswordRules
 };

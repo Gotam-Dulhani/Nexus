@@ -3,7 +3,7 @@ const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const { register, login, forgotPassword, resetPassword } = require('../controllers/authController');
 const { sendOTP, verifyOTP } = require('../controllers/otpController');
-const { registerRules, loginRules, sendOtpRules, verifyOtpRules } = require('../middleware/validators');
+const { registerRules, loginRules, sendOtpRules, verifyOtpRules, forgotPasswordRules, resetPasswordRules } = require('../middleware/validators');
 
 // Rate limiter for auth routes — max 10 requests per 15 min per IP
 const authLimiter = rateLimit({
@@ -66,16 +66,26 @@ router.post('/login', authLimiter, loginRules, login);
  *     summary: Request password reset (mock)
  *     tags: [Auth]
  */
-router.post('/forgot-password', authLimiter, forgotPassword);
+router.post('/forgot-password', authLimiter, forgotPasswordRules, forgotPassword);
 
 /**
  * @swagger
  * /api/auth/reset-password:
  *   post:
- *     summary: Reset password (mock)
+ *     summary: Reset password with token
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, password]
+ *             properties:
+ *               token: { type: string }
+ *               password: { type: string, minLength: 6 }
  */
-router.post('/reset-password', authLimiter, resetPassword);
+router.post('/reset-password', authLimiter, resetPasswordRules, resetPassword);
 
 /**
  * @swagger

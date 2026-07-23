@@ -29,7 +29,8 @@ if (process.env.FRONTEND_URL) {
 // ✅ Security & parsing middleware
 app.use(helmet());
 app.use(cors({ origin: corsOrigins, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
  
 // ✅ Request logger for debugging
 app.use((req, res, next) => {

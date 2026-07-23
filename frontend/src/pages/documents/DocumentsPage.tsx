@@ -4,10 +4,8 @@ import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { PDFViewer } from '../../components/documents/PDFViewer';
-import { useAuth, API_URL, BACKEND_URL } from '../../context/AuthContext';
-
-const API = API_URL;
-const BASE = BACKEND_URL;
+import { useAuth, BACKEND_URL } from '../../context/AuthContext';
+import { apiGet, apiUpload, apiDelete, apiPost } from '../../utils/api';
 
 interface Doc {
   _id: string;
@@ -35,10 +33,8 @@ export const DocumentsPage: React.FC = () => {
 
   const fetchDocs = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/documents`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) setDocs(await res.json());
+      const data = await apiGet<Doc[]>('/documents', token);
+      setDocs(data);
     } finally {
       setLoading(false);
     }
@@ -61,15 +57,8 @@ export const DocumentsPage: React.FC = () => {
     const formData = new FormData();
     formData.append('document', file);
     try {
-      const res = await fetch(`${API}/documents/upload`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      if (res.ok) {
-        const newDoc = await res.json();
-        setDocs(prev => [newDoc, ...prev]);
-      }
+      const newDoc = await apiUpload<Doc>('/documents/upload', formData, token);
+      setDocs(prev => [newDoc, ...prev]);
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -78,11 +67,12 @@ export const DocumentsPage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this document?')) return;
-    const res = await fetch(`${API}/documents/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) setDocs(prev => prev.filter(d => d._id !== id));
+    try {
+      await apiDelete(`/documents/${id}`, token);
+      setDocs(prev => prev.filter(d => d._id !== id));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // E-Signature canvas
@@ -120,14 +110,12 @@ export const DocumentsPage: React.FC = () => {
   const saveSignature = async () => {
     if (!signDoc || !canvasRef.current) return;
     const signature = canvasRef.current.toDataURL('image/png');
-    const res = await fetch(`${API}/documents/${signDoc._id}/sign`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ signature })
-    });
-    if (res.ok) {
+    try {
+      const updatedDoc = await apiPost<any>(`/documents/${signDoc._id}/sign`, { signature }, token);
       setDocs(prev => prev.map(d => d._id === signDoc._id ? { ...d, signature } : d));
       setSignSaved(true);
+    } catch (e) {
+      console.error(e);
     }
   };
 

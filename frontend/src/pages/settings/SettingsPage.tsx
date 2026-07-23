@@ -5,7 +5,8 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiPut, apiUpload, apiPost } from '../../utils/api';
 
 export const SettingsPage: React.FC = () => {
   const { user, token, setUser } = useAuth();
@@ -55,21 +56,10 @@ export const SettingsPage: React.FC = () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
     try {
-      const res = await fetch(`${API_URL}/profile/me`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(profileForm)
-      });
-      if (res.ok) {
-        setMessage({ type: 'success', text: 'Profile updated successfully' });
-      } else {
-        setMessage({ type: 'error', text: 'Failed to update profile' });
-      }
+      await apiPut('/profile/me', profileForm, token);
+      setMessage({ type: 'success', text: 'Profile updated successfully' });
     } catch (e) {
-      setMessage({ type: 'error', text: 'Server error' });
+      setMessage({ type: 'error', text: (e as Error).message || 'Failed to update profile' });
     } finally {
       setLoading(false);
     }
@@ -86,43 +76,13 @@ export const SettingsPage: React.FC = () => {
     formData.append('avatar', file);
 
     try {
-      const res = await fetch(`${API_URL}/profile/me/avatar`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (parseErr) {
-        console.error('Failed to parse response as JSON:', text);
-        setMessage({ type: 'error', text: `Response error: ${text.substring(0, 1000)}` });
-        setLoading(false);
-        return;
+      const data = await apiUpload<any>('/profile/me/avatar', formData, token);
+      if (user) {
+        setUser({ ...user, avatarUrl: data.avatarUrl });
       }
-      
-      if (res.ok) {
-        // Update user context with new avatar
-        if (user) {
-          setUser({ ...user, avatarUrl: data.avatarUrl });
-        }
-        setMessage({ type: 'success', text: 'Photo updated successfully' });
-      } else {
-        setMessage({ type: 'error', text: data.message || 'Failed to upload photo' });
-      }
-    } catch (e: any) {
-      console.error('Upload error details:', e);
-      let errorMsg = 'Server error';
-      if (e instanceof TypeError && e.message.includes('fetch')) {
-        errorMsg = 'Network error: Backend might be unreachable';
-      } else if (e.name === 'SyntaxError') {
-        errorMsg = 'Response error: Server did not return valid JSON';
-      } else if (e.message) {
-        errorMsg = `Error: ${e.message}`;
-      }
-      setMessage({ type: 'error', text: errorMsg });
+      setMessage({ type: 'success', text: 'Photo updated successfully' });
+    } catch (e) {
+      setMessage({ type: 'error', text: (e as Error).message || 'Server error' });
     } finally {
       setLoading(false);
     }
@@ -145,8 +105,7 @@ export const SettingsPage: React.FC = () => {
         <button 
           onClick={async () => {
             try {
-              const res = await fetch(`${API_URL}/ping-test`, { method: 'POST' });
-              const data = await res.json();
+              const data = await apiPost<any>('/ping-test', {}, null);
               alert(`Ping Response: ${JSON.stringify(data)}`);
             } catch (e: any) {
               alert(`Ping Failed: ${e.message}`);

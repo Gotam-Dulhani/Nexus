@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet } from '../../utils/api';
 import { Avatar } from '../../components/ui/Avatar';
 
 interface Conversation {
@@ -19,14 +20,9 @@ export const MessagesPage: React.FC = () => {
     const fetchConversations = async () => {
       if (!token) return;
       try {
-        const res = await fetch(`${API_URL}/messages/conversations`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.conversations || data;
-          setConversations(Array.isArray(list) ? list : []);
-        }
+        const data = await apiGet<any>('/messages/conversations', token);
+        const list = data.conversations || data;
+        setConversations(Array.isArray(list) ? list : []);
       } catch (e) {
         console.error('Failed to fetch conversations', e);
       } finally {

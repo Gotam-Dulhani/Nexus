@@ -3,9 +3,9 @@ import { DollarSign, ArrowUpCircle, ArrowDownCircle, Send, Clock, CheckCircle, X
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from '../../components/payments/CheckoutForm';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet, apiPost } from '../../utils/api';
 
-const API = API_URL;
 // Using a mock public key if not provided in env for sandbox
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_mock_key_only_for_startup');
 
@@ -37,25 +37,14 @@ export const PaymentsPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`
-  };
-
   const fetchData = async () => {
     try {
-      const [balRes, histRes] = await Promise.all([
-        fetch(`${API}/payments/balance`, { headers }),
-        fetch(`${API}/payments/history`, { headers })
+      const [b, h] = await Promise.all([
+        apiGet<{ balance: string }>('/payments/balance', token),
+        apiGet<Transaction[]>('/payments/history', token)
       ]);
-      if (balRes.ok) {
-        const b = await balRes.json();
-        setBalance(b.balance);
-      }
-      if (histRes.ok) {
-        const h = await histRes.json();
-        setTransactions(h);
-      }
+      setBalance(b.balance);
+      setTransactions(h);
     } catch (err) {
       console.error('Failed to fetch payment data', err);
     } finally {
@@ -76,30 +65,20 @@ export const PaymentsPage: React.FC = () => {
       const body: any = { amount: parseFloat(amount), description };
       if (activeTab === 'transfer') body.toUserId = recipientId;
 
-      const res = await fetch(`${API}/payments/${activeTab}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body)
-      });
+      const data = await apiPost<any>(`/payments/${activeTab}`, body, token);
 
-      const data = await res.json();
-      if (res.ok) {
-        if (activeTab === 'deposit' && data.clientSecret) {
-          // Initialize Stripe flow
-          setClientSecret(data.clientSecret);
-          setTransactionId(data._id);
-        } else {
-          setMessage({ type: 'success', text: data.message || 'Transaction initiated!' });
-          setAmount('');
-          setDescription('');
-          setRecipientId('');
-          setTimeout(fetchData, 2000);
-        }
+      if (activeTab === 'deposit' && data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setTransactionId(data._id);
       } else {
-        setMessage({ type: 'error', text: data.message || 'Transaction failed' });
+        setMessage({ type: 'success', text: data.message || 'Transaction initiated!' });
+        setAmount('');
+        setDescription('');
+        setRecipientId('');
+        setTimeout(fetchData, 2000);
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Network error' });
+      setMessage({ type: 'error', text: (err as Error).message || 'Network error' });
     } finally {
       setSubmitting(false);
     }

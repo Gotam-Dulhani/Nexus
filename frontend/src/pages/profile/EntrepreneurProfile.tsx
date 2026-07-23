@@ -5,7 +5,8 @@ import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet, apiPut } from '../../utils/api';
 import { EditProfileModal } from '../../components/profile/EditProfileModal';
 // import { createCollaborationRequest, getRequestsFromInvestor } from '../../data/collaborationRequests';
 
@@ -21,32 +22,24 @@ export const EntrepreneurProfile: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${API_URL}/profile/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+        const data = await apiGet<any>(`/profile/${id}`, token);
+        setEntrepreneur({
+          ...data,
+          id: data.user._id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+          avatarUrl: data.avatar || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg',
+          startupName: data.startupName || 'Startup Name',
+          industry: 'Tech',
+          location: data.location || 'Unknown',
+          foundedYear: new Date(data.createdAt).getFullYear(),
+          teamSize: 1,
+          fundingNeeded: `$${data.fundingNeeded || 0}`,
+          bio: data.bio || 'No bio provided.',
+          pitchSummary: 'Solving big problems with technology.',
+          isOnline: true
         });
-        if (res.ok) {
-          const data = await res.json();
-          // Map backend profile format to expected frontend format
-          setEntrepreneur({
-            ...data,
-            id: data.user._id,
-            name: data.user.name,
-            email: data.user.email,
-            role: data.user.role,
-            avatarUrl: data.avatar || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg',
-            startupName: data.startupName || 'Startup Name',
-            industry: 'Tech',
-            location: data.location || 'Unknown',
-            foundedYear: new Date(data.createdAt).getFullYear(),
-            teamSize: 1,
-            fundingNeeded: `$${data.fundingNeeded || 0}`,
-            bio: data.bio || 'No bio provided.',
-            pitchSummary: 'Solving big problems with technology.',
-            isOnline: true
-          });
-        }
       } catch (err) {
         console.error('Failed to fetch profile', err);
       } finally {
@@ -85,29 +78,15 @@ export const EntrepreneurProfile: React.FC = () => {
   
   const handleSaveProfile = async (updatedData: any) => {
     try {
-      const res = await fetch(`${API_URL}/profile/me`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(updatedData)
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        // Update local state with the saved data
-        setEntrepreneur((prev: any) => ({
-          ...prev,
-          bio: data.bio || prev.bio,
-          location: data.location || prev.location,
-          startupName: data.startupName || prev.startupName,
-          industry: data.industry || prev.industry,
-          pitchSummary: data.pitchSummary || prev.pitchSummary
-        }));
-      } else {
-        throw new Error('Failed to save profile');
-      }
+      const data = await apiPut<any>('/profile/me', updatedData, token);
+      setEntrepreneur((prev: any) => ({
+        ...prev,
+        bio: data.bio || prev.bio,
+        location: data.location || prev.location,
+        startupName: data.startupName || prev.startupName,
+        industry: data.industry || prev.industry,
+        pitchSummary: data.pitchSummary || prev.pitchSummary
+      }));
     } catch (err) {
       console.error(err);
       throw err;

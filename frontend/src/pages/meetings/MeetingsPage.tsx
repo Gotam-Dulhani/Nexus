@@ -3,14 +3,14 @@ import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Plus, X, Check, XCircle, Video } from 'lucide-react';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet, apiPost, apiPut } from '../../utils/api';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const localizer = momentLocalizer(moment);
-const API = API_URL;
 
 interface Meeting {
   _id: string;
@@ -55,10 +55,8 @@ export const MeetingsPage: React.FC = () => {
 
   const fetchMeetings = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/meetings`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) setMeetings(await res.json());
+      const data = await apiGet<Meeting[]>('/meetings', token);
+      setMeetings(data);
     } finally {
       setLoading(false);
     }
@@ -66,10 +64,8 @@ export const MeetingsPage: React.FC = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) setUsers(await res.json());
+      const data = await apiGet<any[]>('/profile', token);
+      setUsers(data);
     } catch (e) {
       console.error(e);
     }
@@ -84,34 +80,21 @@ export const MeetingsPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     try {
-      const res = await fetch(`${API}/meetings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(form)
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        const errorMsg = data.errors ? data.errors.map((e: any) => e.message).join(', ') : data.message;
-        setError(errorMsg || 'Failed to create meeting');
-        return;
-      }
+      const data = await apiPost<any>('/meetings', form, token);
       setMeetings(prev => [...prev, data]);
       setShowModal(false);
       setForm({ attendeeId: '', title: '', description: '', startTime: '', endTime: '' });
-    } catch {
-      setError('Failed to create meeting');
+    } catch (err) {
+      setError((err as Error).message || 'Failed to create meeting');
     }
   };
 
   const updateStatus = async (id: string, status: string) => {
-    const res = await fetch(`${API}/meetings/${id}/status`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ status })
-    });
-    if (res.ok) {
-      const updated = await res.json();
+    try {
+      const updated = await apiPut<any>(`/meetings/${id}/status`, { status }, token);
       setMeetings(prev => prev.map(m => m._id === id ? updated : m));
+    } catch (e) {
+      console.error(e);
     }
   };
 

@@ -3,7 +3,8 @@ import { Search, Filter } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { InvestorCard } from '../../components/investor/InvestorCard';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet } from '../../utils/api';
 
 export const InvestorsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,19 +15,13 @@ export const InvestorsPage: React.FC = () => {
   useEffect(() => {
     const fetchInvestors = async () => {
       try {
-        const res = await fetch(`${API_URL}/profile`, {
-          headers: { Authorization: `Bearer ${token}` }
+        const data = await apiGet<any[]>('/profile', token);
+        const filtered = data.filter((p: any) => {
+          const isInvestor = p.user?.role === 'investor';
+          const isNotSelf = p.user?._id !== user?.id && p.user?.id !== user?.id;
+          return isInvestor && isNotSelf;
         });
-        if (res.ok) {
-          const data = await res.json();
-          // Filter specifically to users with the 'investor' role, excluding self if applicable
-          const filtered = data.filter((p: any) => {
-            const isInvestor = p.user?.role === 'investor';
-            const isNotSelf = p.user?._id !== user?.id && p.user?.id !== user?.id; // Robust ID check
-            return isInvestor && isNotSelf;
-          });
-          setInvestors(filtered);
-        }
+        setInvestors(filtered);
       } catch (e) {
         console.error("Failed to fetch investors", e);
       } finally {

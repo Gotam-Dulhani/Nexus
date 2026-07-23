@@ -5,7 +5,8 @@ import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet, apiPut } from '../../utils/api';
 import { EditProfileModal } from '../../components/profile/EditProfileModal';
 
 export const InvestorProfile: React.FC = () => {
@@ -20,34 +21,27 @@ export const InvestorProfile: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${API_URL}/profile/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+        const data = await apiGet<any>(`/profile/${id}`, token);
+        setInvestor({
+          ...data,
+          id: data.user._id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+          avatarUrl: data.avatar || 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg',
+          bio: data.bio || 'Experienced investor focused on technology startups.',
+          location: data.location || 'Unknown',
+          isOnline: true,
+          investmentHistory: data.investmentHistory || [],
+          investmentPreferences: data.investmentPreferences || [],
+          portfolioSize: data.portfolioSize || 0,
+          totalInvestments: data.investmentHistory?.length || 0,
+          investmentStage: data.investmentPreferences || ['Seed', 'Series A'],
+          investmentInterests: data.investmentPreferences || ['Technology'],
+          portfolioCompanies: data.investmentHistory || [],
+          minimumInvestment: '$50K',
+          maximumInvestment: '$500K'
         });
-        if (res.ok) {
-          const data = await res.json();
-          setInvestor({
-            ...data,
-            id: data.user._id,
-            name: data.user.name,
-            email: data.user.email,
-            role: data.user.role,
-            avatarUrl: data.avatar || 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg',
-            bio: data.bio || 'Experienced investor focused on technology startups.',
-            location: data.location || 'Unknown',
-            isOnline: true,
-            investmentHistory: data.investmentHistory || [],
-            investmentPreferences: data.investmentPreferences || [],
-            portfolioSize: data.portfolioSize || 0,
-            totalInvestments: data.investmentHistory?.length || 0,
-            investmentStage: data.investmentPreferences || ['Seed', 'Series A'],
-            investmentInterests: data.investmentPreferences || ['Technology'],
-            portfolioCompanies: data.investmentHistory || [],
-            minimumInvestment: '$50K',
-            maximumInvestment: '$500K'
-          });
-        }
       } catch (err) {
         console.error('Failed to fetch profile', err);
       } finally {
@@ -86,27 +80,14 @@ export const InvestorProfile: React.FC = () => {
   
   const handleSaveProfile = async (updatedData: any) => {
     try {
-      const res = await fetch(`${API_URL}/profile/me`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(updatedData)
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        setInvestor((prev: any) => ({
-          ...prev,
-          bio: data.bio || prev.bio,
-          location: data.location || prev.location,
-          minimumInvestment: data.minimumInvestment || prev.minimumInvestment,
-          maximumInvestment: data.maximumInvestment || prev.maximumInvestment
-        }));
-      } else {
-        throw new Error('Failed to save profile');
-      }
+      const data = await apiPut<any>('/profile/me', updatedData, token);
+      setInvestor((prev: any) => ({
+        ...prev,
+        bio: data.bio || prev.bio,
+        location: data.location || prev.location,
+        minimumInvestment: data.minimumInvestment || prev.minimumInvestment,
+        maximumInvestment: data.maximumInvestment || prev.maximumInvestment
+      }));
     } catch (err) {
       console.error(err);
       throw err;

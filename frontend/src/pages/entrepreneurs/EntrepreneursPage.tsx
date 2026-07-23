@@ -3,7 +3,8 @@ import { Search, Filter } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { EntrepreneurCard } from '../../components/entrepreneur/EntrepreneurCard';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet } from '../../utils/api';
 
 export const EntrepreneursPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,19 +15,13 @@ export const EntrepreneursPage: React.FC = () => {
   useEffect(() => {
     const fetchEntrepreneurs = async () => {
       try {
-        const res = await fetch(`${API_URL}/profile`, {
-          headers: { Authorization: `Bearer ${token}` }
+        const data = await apiGet<any[]>('/profile', token);
+        const filtered = data.filter((p: any) => {
+          const isEntrepreneur = p.user?.role === 'entrepreneur';
+          const isNotSelf = p.user?._id !== user?.id && p.user?.id !== user?.id;
+          return isEntrepreneur && isNotSelf;
         });
-        if (res.ok) {
-          const data = await res.json();
-          // Filter specifically to users with the 'entrepreneur' role, excluding self if applicable
-          const filtered = data.filter((p: any) => {
-            const isEntrepreneur = p.user?.role === 'entrepreneur';
-            const isNotSelf = p.user?._id !== user?.id && p.user?.id !== user?.id; // Robust ID check
-            return isEntrepreneur && isNotSelf;
-          });
-          setEntrepreneurs(filtered);
-        }
+        setEntrepreneurs(filtered);
       } catch (e) {
         console.error("Failed to fetch entrepreneurs", e);
       } finally {

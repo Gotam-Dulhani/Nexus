@@ -5,7 +5,8 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet, apiPost } from '../../utils/api';
 import { AddDealModal } from '../../components/deals/AddDealModal';
 import { toast } from 'react-hot-toast';
 
@@ -21,13 +22,8 @@ export const DealsPage: React.FC = () => {
   
   const fetchDeals = async () => {
     try {
-      const res = await fetch(`${API_URL}/deals`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setDeals(data);
-      }
+      const data = await apiGet<any[]>('/deals', token);
+      setDeals(data);
     } catch (err) {
       console.error('Failed to fetch deals', err);
     } finally {
@@ -41,23 +37,11 @@ export const DealsPage: React.FC = () => {
 
   const handleAddDeal = async (dealData: any) => {
     try {
-      const res = await fetch(`${API_URL}/deals`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(dealData)
-      });
-      if (res.ok) {
-        toast.success('Deal added successfully');
-        fetchDeals(); // Refresh list
-      } else {
-        const err = await res.json();
-        toast.error(err.message || 'Failed to add deal');
-      }
+      await apiPost('/deals', dealData, token);
+      toast.success('Deal added successfully');
+      fetchDeals();
     } catch (err) {
-      toast.error('Network error. Please try again.');
+      toast.error((err as Error).message || 'Network error. Please try again.');
     }
   };
 

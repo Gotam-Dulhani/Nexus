@@ -6,7 +6,8 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { ChatMessage } from '../../components/chat/ChatMessage';
 import { ChatUserList } from '../../components/chat/ChatUserList';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet, apiPost } from '../../utils/api';
 import { useSocket } from '../../context/SocketContext';
 import { toast } from 'react-hot-toast';
 
@@ -23,11 +24,7 @@ export const ChatPage: React.FC = () => {
   
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   
-  const API = API_URL;
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`
-  };
+  const { socket, isConnected } = useSocket();
 
   // Socket message listener
   useEffect(() => {
@@ -49,26 +46,16 @@ export const ChatPage: React.FC = () => {
 
   const fetchConversations = useCallback(async () => {
     try {
-      console.log('[Chat] Fetching conversations list...');
-      const res = await fetch(`${API}/messages/conversations`, { headers });
-      if (res.ok) {
-        const data = await res.json();
-        console.log('[Chat] Conversations data received:', data);
-        
-        const convList = data.conversations || data; // Handle both old and new response formats
-        
-        setConversations(Array.isArray(convList) ? convList.map((c: any) => ({
-          partner: c.user,
-          lastMessage: c.lastMessage
-        })) : []);
-      } else {
-        const errText = await res.text();
-        console.error(`[Chat] Failed to fetch conversations: ${res.status} ${errText}`);
-      }
+      const data = await apiGet<any>('/messages/conversations', token);
+      const convList = data.conversations || data;
+      setConversations(Array.isArray(convList) ? convList.map((c: any) => ({
+        partner: c.user,
+        lastMessage: c.lastMessage
+      })) : []);
     } catch (e) { 
       console.error('[Chat] Fetch conversations error:', e); 
     }
-  }, [token, API]);
+  }, [token]);
 
   const fetchMessages = useCallback(async () => {
     if (!userId) {
@@ -77,22 +64,19 @@ export const ChatPage: React.FC = () => {
       return;
     }
     try {
-      const res = await fetch(`${API}/messages/${userId}`, { headers });
-      if (res.ok) setMessages(await res.json());
+      const msgs = await apiGet<any[]>(`/messages/${userId}`, token);
+      setMessages(msgs);
       
-      const pRes = await fetch(`${API}/profile/${userId}`, { headers });
-      if (pRes.ok) {
-        const pData = await pRes.json();
-        setChatPartner({
-          id: userId,
-          name: pData.user.name,
-          role: pData.user.role,
-          avatarUrl: pData.avatar,
-          isOnline: true
-        });
-      }
+      const pData = await apiGet<any>(`/profile/${userId}`, token);
+      setChatPartner({
+        id: userId,
+        name: pData.user.name,
+        role: pData.user.role,
+        avatarUrl: pData.avatar,
+        isOnline: true
+      });
     } catch (e) { console.error(e); }
-  }, [userId, token, API]);
+  }, [userId, token]);
 
   useEffect(() => {
     if (token) fetchConversations();
@@ -111,24 +95,16 @@ export const ChatPage: React.FC = () => {
     if (!newMessage.trim() || !currentUser || !userId) return;
 
     try {
-      const res = await fetch(`${API}/messages`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ receiverId: userId, content: newMessage })
+      const msg = await apiPost<any>('/messages', { receiverId: userId, content: newMessage }, token);
+      setMessages(prev => [...prev, msg]);
+      setNewMessage('');
+      
+      socket?.emit('send-message', {
+        receiverId: userId,
+        message: msg
       });
-      if (res.ok) {
-        const msg = await res.json();
-        setMessages(prev => [...prev, msg]);
-        setNewMessage('');
-        
-        // Notify via socket
-        socket?.emit('send-message', {
-          receiverId: userId,
-          message: msg
-        });
 
-        fetchConversations();
-      }
+      fetchConversations();
     } catch (e) { console.error(e); }
   };
 

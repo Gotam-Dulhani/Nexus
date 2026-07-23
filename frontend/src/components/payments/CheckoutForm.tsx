@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { Button } from '../ui/Button';
-import { API_URL } from '../../context/AuthContext';
+import { apiPost } from '../../utils/api';
 
 interface CheckoutFormProps {
   transactionId: string;
   onSuccess: () => void;
   onError: (msg: string) => void;
 }
-
-const API = API_URL;
 
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({ transactionId, onSuccess, onError }) => {
   const stripe = useStripe();
@@ -26,7 +24,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ transactionId, onSuc
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: window.location.href, // Stripe requires this but we're handling it via redirect:'if_required' usually, but here we'll use confirmPayment without redirect if possible.
+        return_url: window.location.href,
       },
       redirect: "if_required"
     });
@@ -35,28 +33,15 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ transactionId, onSuc
       onError(error.message || 'Payment failed');
       setIsProcessing(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      // Confirm with backend
       try {
         const token = localStorage.getItem('nexus_token');
-        const res = await fetch(`${API}/payments/deposit/confirm`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            transactionId,
-            paymentIntentId: paymentIntent.id
-          })
-        });
-        
-        if (res.ok) {
-          onSuccess();
-        } else {
-          onError('Failed to verify payment with server');
-        }
+        await apiPost('/payments/deposit/confirm', {
+          transactionId,
+          paymentIntentId: paymentIntent.id
+        }, token);
+        onSuccess();
       } catch (err) {
-        onError('Network error during verification');
+        onError((err as Error).message || 'Network error during verification');
       } finally {
         setIsProcessing(false);
       }

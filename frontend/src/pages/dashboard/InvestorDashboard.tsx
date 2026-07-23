@@ -5,7 +5,8 @@ import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { EntrepreneurCard } from '../../components/entrepreneur/EntrepreneurCard';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet } from '../../utils/api';
 
 export const InvestorDashboard: React.FC = () => {
   const { user, token } = useAuth();
@@ -14,28 +15,18 @@ export const InvestorDashboard: React.FC = () => {
   const [meetings, setMeetings] = useState<any[]>([]);
   const [balance, setBalance] = useState('0.00');
   const [loading, setLoading] = useState(true);
-  
-  const API = API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const headers = { Authorization: `Bearer ${token}` };
-        const [profRes, meetRes, balRes] = await Promise.all([
-          fetch(`${API}/profile`, { headers }),
-          fetch(`${API}/meetings`, { headers }),
-          fetch(`${API}/payments/balance`, { headers })
+        const [profilesData, meetingsData, balData] = await Promise.all([
+          apiGet<any[]>('/profile', token),
+          apiGet<any[]>('/meetings', token),
+          apiGet<{ balance: string }>('/payments/balance', token)
         ]);
-        
-        if (profRes.ok) {
-          const profiles = await profRes.json();
-          setEntrepreneurs(profiles.filter((p: any) => p.user?.role === 'entrepreneur'));
-        }
-        if (meetRes.ok) setMeetings(await meetRes.json());
-        if (balRes.ok) {
-          const b = await balRes.json();
-          setBalance(b.balance);
-        }
+        setEntrepreneurs(profilesData.filter((p: any) => p.user?.role === 'entrepreneur'));
+        setMeetings(meetingsData);
+        setBalance(balData.balance);
       } catch (e) {
         console.error("Investor dashboard fetch error", e);
       } finally {
@@ -43,7 +34,7 @@ export const InvestorDashboard: React.FC = () => {
       }
     };
     if (token) fetchData();
-  }, [token, API]);
+  }, [token]);
   
   if (!user || loading) return (
     <div className="flex justify-center items-center h-64">

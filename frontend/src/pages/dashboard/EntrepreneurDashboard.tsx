@@ -5,7 +5,8 @@ import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { InvestorCard } from '../../components/investor/InvestorCard';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiGet } from '../../utils/api';
 
 export const EntrepreneurDashboard: React.FC = () => {
   const { user, token } = useAuth();
@@ -13,28 +14,18 @@ export const EntrepreneurDashboard: React.FC = () => {
   const [recommendedInvestors, setRecommendedInvestors] = useState<any[]>([]);
   const [balance, setBalance] = useState('0.00');
   const [loading, setLoading] = useState(true);
-  
-  const API = API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const headers = { Authorization: `Bearer ${token}` };
-        const [meetRes, profRes, balRes] = await Promise.all([
-          fetch(`${API}/meetings`, { headers }),
-          fetch(`${API}/profile`, { headers }),
-          fetch(`${API}/payments/balance`, { headers })
+        const [meetingsData, profilesData, balData] = await Promise.all([
+          apiGet<any[]>('/meetings', token),
+          apiGet<any[]>('/profile', token),
+          apiGet<{ balance: string }>('/payments/balance', token)
         ]);
-        
-        if (meetRes.ok) setMeetings(await meetRes.json());
-        if (profRes.ok) {
-          const profiles = await profRes.json();
-          setRecommendedInvestors(profiles.filter((p: any) => p.user?.role === 'investor').slice(0, 3));
-        }
-        if (balRes.ok) {
-          const b = await balRes.json();
-          setBalance(b.balance);
-        }
+        setMeetings(meetingsData);
+        setRecommendedInvestors(profilesData.filter((p: any) => p.user?.role === 'investor').slice(0, 3));
+        setBalance(balData.balance);
       } catch (e) {
         console.error("Dashboard fetch error", e);
       } finally {
@@ -42,7 +33,7 @@ export const EntrepreneurDashboard: React.FC = () => {
       }
     };
     if (token) fetchData();
-  }, [token, API]);
+  }, [token]);
   
   if (!user || loading) return (
     <div className="flex justify-center items-center h-64">

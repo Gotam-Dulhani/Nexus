@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
-import { useAuth, API_URL } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { apiPost } from '../../utils/api';
 import { toast } from 'react-hot-toast';
 
 interface ScheduleMeetingModalProps {
@@ -34,37 +35,23 @@ export const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
     setLoading(true);
 
     try {
-      // Construct ISO strings for start and end time
       const startDateTime = new Date(`${formData.date}T${formData.startTime}`);
       const endDateTime = new Date(startDateTime.getTime() + parseInt(formData.duration) * 60000);
 
-      const res = await fetch(`${API_URL}/meetings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          attendeeId,
-          title: formData.title,
-          description: formData.description,
-          startTime: startDateTime.toISOString(),
-          endTime: endDateTime.toISOString(),
-          notes: formData.notes
-        })
-      });
+      await apiPost('/meetings', {
+        attendeeId,
+        title: formData.title,
+        description: formData.description,
+        startTime: startDateTime.toISOString(),
+        endTime: endDateTime.toISOString(),
+        notes: formData.notes
+      }, token);
 
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success(`Meeting scheduled with ${attendeeName}`);
-        onClose();
-      } else {
-        toast.error(data.message || 'Failed to schedule meeting');
-      }
+      toast.success(`Meeting scheduled with ${attendeeName}`);
+      onClose();
     } catch (error) {
       console.error('Schedule meeting error:', error);
-      toast.error('An error occurred. Please try again.');
+      toast.error((error as Error).message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

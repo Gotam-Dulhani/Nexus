@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { UserRole } from '../../types';
+import { LegalModal } from '../../components/legal/LegalModal';
 
 export const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -14,6 +15,7 @@ export const RegisterPage: React.FC = () => {
   const [role, setRole] = useState<UserRole>('entrepreneur');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [legalModal, setLegalModal] = useState<'terms' | 'privacy' | null>(null);
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -201,9 +203,9 @@ export const RegisterPage: React.FC = () => {
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-gray-600 dark:text-gray-400">
                 I agree to the{' '}
-                <a href="#" className="font-semibold text-primary-600 hover:text-primary-500 dark:text-primary-400">Terms of Service</a>
+                <button type="button" onClick={(e) => { e.preventDefault(); setLegalModal('terms'); }} className="font-semibold text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 underline underline-offset-2">Terms of Service</button>
                 {' '}and{' '}
-                <a href="#" className="font-semibold text-primary-600 hover:text-primary-500 dark:text-primary-400">Privacy Policy</a>
+                <button type="button" onClick={(e) => { e.preventDefault(); setLegalModal('privacy'); }} className="font-semibold text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 underline underline-offset-2">Privacy Policy</button>
               </label>
             </div>
 
@@ -220,6 +222,10 @@ export const RegisterPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {legalModal && (
+        <LegalModal type={legalModal} onClose={() => setLegalModal(null)} />
+      )}
     </div>
   );
 };

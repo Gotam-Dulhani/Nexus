@@ -23,8 +23,6 @@ export const ChatPage: React.FC = () => {
   const { socket, isConnected } = useSocket();
   
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
-  
-  const { socket, isConnected } = useSocket();
 
   // Socket message listener
   useEffect(() => {

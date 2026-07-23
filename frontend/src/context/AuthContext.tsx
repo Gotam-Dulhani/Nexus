@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export const BACKEND_URL = import.meta.env.VITE_API_URL 
-  ? import.meta.env.VITE_API_URL.replace(/\/api$/, '')
-  : (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000');
+export const API_URL = import.meta.env.VITE_API_URL 
+  || (window.location.hostname.includes('vercel.app') 
+    ? 'https://nexus-production-b488.up.railway.app/api' 
+    : 'http://localhost:5000/api');
 
-export const API_URL = import.meta.env.VITE_API_URL || `${BACKEND_URL}/api`;
+export const BACKEND_URL = API_URL.replace(/\/api$/, '');
 
 async function safeFetch(url: string, options?: RequestInit): Promise<{ res: Response; data: any }> {
   const res = await fetch(url, options);

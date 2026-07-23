@@ -1,14 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Menu, X, Bell, MessageCircle, User, LogOut, Building2, CircleDollarSign } from 'lucide-react';
+import { Menu, X, Bell, MessageCircle, User, LogOut, Building2, CircleDollarSign, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
 
 export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('nexus_theme');
+    if (saved === 'dark') return true;
+    if (saved === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('nexus_theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -92,6 +107,14 @@ export const Navbar: React.FC = () => {
                   Logout
                 </button>
                 
+                <button
+                  onClick={() => setIsDark(!isDark)}
+                  className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                  title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                >
+                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+                
                 <Link to={profileRoute} className="flex items-center space-x-2 ml-2">
                   <Avatar
                     src={user.avatarUrl}
@@ -171,6 +194,17 @@ export const Navbar: React.FC = () => {
                   >
                     <LogOut size={18} className="mr-3" />
                     Logout
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsDark(!isDark);
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex w-full items-center px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-500 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+                  >
+                    {isDark ? <Sun size={18} className="mr-3" /> : <Moon size={18} className="mr-3" />}
+                    {isDark ? 'Light Mode' : 'Dark Mode'}
                   </button>
                 </div>
               </>

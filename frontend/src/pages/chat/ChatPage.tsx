@@ -20,6 +20,7 @@ export const ChatPage: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const [chatPartner, setChatPartner] = useState<any>(null);
   const [isCalling, setIsCalling] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { socket, isConnected } = useSocket();
   
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
@@ -247,8 +248,35 @@ export const ChatPage: React.FC = () => {
             
             {/* Message input */}
             <div className="border-t border-gray-200 dark:border-gray-800 p-4 bg-white dark:bg-gray-900">
-              <form onSubmit={handleSendMessage} className="flex space-x-2">
-                <Button type="button" variant="ghost" size="sm" className="rounded-full p-2"><Smile size={20} /></Button>
+              <form onSubmit={handleSendMessage} className="flex space-x-2 relative">
+                <div className="relative">
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="rounded-full p-2"
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  >
+                    <Smile size={20} />
+                  </Button>
+                  {showEmojiPicker && (
+                    <div className="absolute bottom-12 left-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3 grid grid-cols-8 gap-1 z-50 w-72">
+                      {['😀','😂','😍','🥳','😎','🤔','👍','👋','❤️','🔥','✅','🎉','💪','🙌','👏','🤝','💡','🚀','📈','💰','🏆','⭐','🎯','📣'].map(emoji => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          className="text-xl hover:bg-gray-100 dark:hover:bg-gray-700 rounded p-1 transition-colors"
+                          onClick={() => {
+                            setNewMessage(prev => prev + emoji);
+                            setShowEmojiPicker(false);
+                          }}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <Input
                   type="text"
                   placeholder="Type a message..."

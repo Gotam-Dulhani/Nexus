@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { User, Lock, Bell, Globe, Palette, CreditCard, Plus, Check } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { User, Lock, Bell, Globe, CreditCard, Plus, Check } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -13,9 +13,6 @@ export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  
-  // Appearance state
-  const [theme, setTheme] = useState(localStorage.getItem('nexus_theme') || 'Light');
   
   // Billing state
   const [isEditingBilling, setIsEditingBilling] = useState(false);
@@ -39,23 +36,6 @@ export const SettingsPage: React.FC = () => {
   // Password change state
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [passwordError, setPasswordError] = useState('');
-
-  // Handle theme change on mount and when theme changes
-  useEffect(() => {
-    if (theme === 'Dark') {
-      document.documentElement.classList.add('dark');
-    } else if (theme === 'Light') {
-      document.documentElement.classList.remove('dark');
-    } else {
-      // System preference
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-    localStorage.setItem('nexus_theme', theme);
-  }, [theme]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -91,7 +71,9 @@ export const SettingsPage: React.FC = () => {
     try {
       const data = await apiUpload<any>('/profile/me/avatar', formData, token);
       if (user) {
-        setUser({ ...user, avatarUrl: data.avatarUrl });
+        const updatedUser = { ...user, avatarUrl: data.avatarUrl };
+        setUser(updatedUser);
+        localStorage.setItem('nexus_user', JSON.stringify(updatedUser));
       }
       setMessage({ type: 'success', text: 'Photo updated successfully' });
     } catch (e) {
@@ -106,7 +88,6 @@ export const SettingsPage: React.FC = () => {
     { id: 'security', icon: Lock, label: 'Security' },
     { id: 'notifications', icon: Bell, label: 'Notifications' },
     { id: 'language', icon: Globe, label: 'Language' },
-    { id: 'appearance', icon: Palette, label: 'Appearance' },
     { id: 'billing', icon: CreditCard, label: 'Billing' },
   ];
 
@@ -419,45 +400,6 @@ export const SettingsPage: React.FC = () => {
             </Card>
           )}
 
-          {activeTab === 'appearance' && (
-            <Card>
-              <CardHeader>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Appearance Settings</h2>
-              </CardHeader>
-              <CardBody className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Theme Preference</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {['Light', 'Dark', 'System'].map((t) => (
-                      <div 
-                        key={t} 
-                        onClick={() => setTheme(t)}
-                        className={`cursor-pointer border-2 rounded-lg p-4 text-center transition-all ${
-                          theme === t 
-                            ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20' 
-                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                        }`}
-                      >
-                        <div className={`h-12 w-full rounded mb-2 ${
-                          t === 'Dark' ? 'bg-gray-800' : 
-                          t === 'Light' ? 'bg-white border border-gray-200' : 
-                          'bg-gradient-to-r from-white to-gray-800 border border-gray-200'
-                        }`}></div>
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="text-sm font-medium dark:text-gray-200">{t}</span>
-                          {theme === t && <Check size={14} className="text-primary-600" />}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex justify-end pt-4">
-                  <Button onClick={() => setMessage({ type: 'success', text: `Theme updated to ${theme}.` })}>Apply Changes</Button>
-                </div>
-              </CardBody>
-            </Card>
-          )}
-
           {activeTab === 'billing' && (
             <Card>
               <CardHeader>
@@ -522,7 +464,7 @@ export const SettingsPage: React.FC = () => {
                           </div>
                         </div>
                       ))}
-                      <Button variant="outline" size="sm" fullWidth className="border-dashed">
+                      <Button variant="outline" size="sm" fullWidth className="border-dashed" onClick={() => setIsEditingBilling(true)}>
                         <Plus size={16} className="mr-2" /> Add New Payment Method
                       </Button>
                     </div>
@@ -530,7 +472,7 @@ export const SettingsPage: React.FC = () => {
                 </div>
                 
                 <div className="flex justify-end">
-                  <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 dark:border-red-900/30">Cancel Subscription</Button>
+                  <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 dark:border-red-900/30" onClick={() => setMessage({ type: 'success', text: 'Subscription cancellation request submitted. You will receive a confirmation email shortly.' })}>Cancel Subscription</Button>
                 </div>
               </CardBody>
             </Card>

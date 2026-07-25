@@ -77,6 +77,7 @@ Nexus brings everything into one **"Chamber" approach**: entrepreneurs pitch the
 ### UI/UX
 - **Dark Mode** – Toggle between light and dark themes from the navbar
 - **Split-Screen Auth Pages** – Premium login/register/forgot-password pages with animated gradient backgrounds
+- **Legal Modals** – Terms of Service and Privacy Policy with full legal text on the Register page
 - **Responsive Design** – Fully responsive across mobile, tablet, and desktop
 - **Tailwind CSS** – Modern utility-first styling with custom design tokens
 
@@ -211,7 +212,7 @@ Nexus/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── ui/           # Avatar, Badge, Button, Card, Input
+│   │   │   ├── ui/           # Avatar, Badge, Button, Card, Input, Modal
 │   │   │   ├── layout/       # Navbar, Sidebar, DashboardLayout
 │   │   │   ├── chat/         # ChatMessage, ChatUserList
 │   │   │   ├── documents/    # PDFViewer
@@ -219,7 +220,8 @@ Nexus/
 │   │   │   ├── profile/      # EditProfileModal
 │   │   │   ├── investor/     # InvestorCard
 │   │   │   ├── entrepreneur/ # EntrepreneurCard
-│   │   │   └── deals/        # AddDealModal
+│   │   │   ├── deals/        # AddDealModal
+│   │   │   └── legal/        # LegalModal (Terms & Privacy)
 │   │   ├── pages/
 │   │   │   ├── auth/         # Login, Register, ForgotPassword, ResetPassword
 │   │   │   ├── dashboard/    # EntrepreneurDashboard, InvestorDashboard
